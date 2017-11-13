@@ -1,0 +1,113 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<title>Hello</title>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<style>
+    #dragover-overlay {
+        display: none;
+        position: fixed;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,.3);
+    }
+    #dragover-overlay.show {
+        display: block;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    #upload-instruction {
+        box-sizing: border-box;
+        border-radius: 50%;
+        padding: 50px;
+        margin: 50px auto 0;
+        background-color: rgba(0,0,0,.7);
+        color: white;
+        text-align: center
+    }
+</style>
+</head>
+<body>
+    <h1>hello drop to upload</h1>
+    <ol id="upload-list">
+        
+    </ol>
+    <div id="dragover-overlay">
+        <div id="upload-instruction">
+            <h2>drop to upload</h2>
+        </div>
+    </div>
+<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+<script>
+    const dragoverOverlay = document.getElementById('dragover-overlay')
+    const uploadList = document.getElementById('upload-list')
+
+    let draging = false
+
+    // show dragoverOverlay if drag a file over
+    document.addEventListener('dragover', (e) => {
+        // prevent default to allow drop
+        e.preventDefault();
+        if (draging) {
+            return
+        }
+        if (checkDataIsFile(e) === false) {
+            return
+        }
+        console.log('qq')
+        draging = true
+        dragoverOverlay.classList.add('show')
+    }, false)
+
+    // upload if drop to dragoverOverlay
+    dragoverOverlay.addEventListener('drop', (e) => {
+        e.preventDefault()
+        draging = false
+        dragoverOverlay.classList.remove('show')
+        if (e.dataTransfer.files.length > 1) {
+            return alert('only support one file at a time')
+        }
+        const file = e.dataTransfer.files[0]
+        const formData = new FormData()
+        formData.append('file', file)
+
+        const uploadStatus = document.createElement('li')
+        uploadStatus.fileName = file.name
+        uploadStatus.textContent = `${uploadStatus.fileName} 0%`
+
+        uploadList.appendChild(uploadStatus)
+
+        axios.post('/upload', formData, {
+            onUploadProgress(progressEvent) {
+                const progess = (progressEvent.loaded / progressEvent.total * 100).toFixed()
+                uploadStatus.textContent = `${uploadStatus.fileName} ${progess}%`
+            }
+        })
+    }, false)
+
+
+    // document.addEventListener("dragend", function( event ) {
+    //     console.log('dragend')
+    // }, false);
+
+    document.addEventListener("dragleave", function( event ) {
+        // reset background of potential drop target when the draggable element leaves it
+        if (event.target === dragoverOverlay) {
+            console.log('dragleave')
+            draging = false
+            dragoverOverlay.classList.remove('show')
+        }
+    }, false);
+
+    function checkDataIsFile(event) {
+        const dt = event.dataTransfer
+        const isFile = dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))
+        return isFile
+    }
+</script>
+</body>
+</html>
