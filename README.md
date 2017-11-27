@@ -24,14 +24,6 @@ body: [multipart/form-data encoded data]
 content-type: {{ mime type of file }} / application/octet-stream
 body: [binary file data]
 
-### 瀏覽器
-
-http://localhost:8080/
-
-上傳方式：
-
-- form: `/upload`
-- body: `/upload-single`
 
 ### cURL
 
@@ -48,3 +40,13 @@ curl -X POST \
       --data-binary "@sendFile.js" \
       http://localhost:8080/upload-single
 ```
+
+
+### 瀏覽器
+
+http://localhost:8080/
+
+上傳方式：
+
+- form: `/upload`
+- body: `/upload-single`
