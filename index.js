@@ -1,35 +1,46 @@
-const Koa = require('koa')
-const Router = require('koa-router')
-const bodyParser = require('koa-bodyparser')
-const multer = require('koa-multer')
-const static = require('koa-static')
-const path = require('path')
+const express = require('express')
+const multer = require('multer')
+const upload = multer({ dest: 'uploads/' })
+const uploadSingleFile = require('./uploadMiddleware')
 
-const debug = require('debug')('KoaApp:index')
+const debug = require('debug')('App:index')
 
 // defalut enable DEBUG
 if (process.env.NODE_ENV !== 'production' && !process.env.DEBUG) {
-    require('debug').enable('KoaApp:*')
+  require('debug').enable('App:*')
 }
 
-const app = new Koa()
-const upload = multer({ dest: 'uploads/' });
+const app = express()
 
-app.use(static('public'))
+app.use(express.static('public'))
 
-app.use(bodyParser(), (ctx, next) => {
-    ctx.input = ctx.request.body
-    next()
+/**
+ curl -X POST \
+      -F "file=@sendFile.js" \
+      http://localhost:8080/upload
+ */
+app.post('/upload', upload.single('file'), (req, res, next) => {
+  debug(req.file)
+  res.send('ok')
 })
 
-const router = new Router()
-router.post('/upload', upload.single('file'), async (ctx, next) => {
-    console.log(ctx.req.file)
-    ctx.body = 'hello'
-})
+/**
+ Headers:
 
-app.use(router.routes())
-app.use(router.allowedMethods())
+ x-file-name - file name
+ content-type - mine type the file
+
+ Example:
+
+ curl -X POST \
+      -H "content-type: text/javascript" \
+      --data-binary "@sendFile.js" \
+      http://localhost:8080/upload-single
+ */
+app.post('/upload-single', uploadSingleFile, (req, res) => {
+  debug(req.file)
+  res.send('ok')
+})
 
 app.listen(process.env.PORT || 8080)
 

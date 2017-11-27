@@ -33,6 +33,11 @@
 </head>
 <body>
     <h1>hello drop to upload</h1>
+    <div>
+        上傳方式：
+        <input type="radio" name="method" value="form" id="method-form" checked> <label for="method-form">form</label>
+        <input type="radio" name="method" value="body" id="method-body"> <label for="method-body">body</label>
+    </div>
     <ol id="upload-list">
         
     </ol>
@@ -72,8 +77,6 @@
             return alert('only support one file at a time')
         }
         const file = e.dataTransfer.files[0]
-        const formData = new FormData()
-        formData.append('file', file)
 
         const uploadStatus = document.createElement('li')
         uploadStatus.fileName = file.name
@@ -81,12 +84,18 @@
 
         uploadList.appendChild(uploadStatus)
 
-        axios.post('/upload', formData, {
-            onUploadProgress(progressEvent) {
-                const progess = (progressEvent.loaded / progressEvent.total * 100).toFixed()
-                uploadStatus.textContent = `${uploadStatus.fileName} ${progess}%`
-            }
-        })
+        const onUploadProgress = (progressEvent) => {
+            const progess = (progressEvent.loaded / progressEvent.total * 100).toFixed()
+            uploadStatus.textContent = `${uploadStatus.fileName} ${progess}%`
+        }
+
+        if (getUploadMethod() === 'form') {
+            uploadWithForm(file, onUploadProgress)
+        }
+        else {
+            uploadWithBody(file, onUploadProgress)
+        }
+        
     }, false)
 
 
@@ -107,6 +116,30 @@
         const dt = event.dataTransfer
         const isFile = dt.types && (dt.types.indexOf ? dt.types.indexOf('Files') != -1 : dt.types.contains('Files'))
         return isFile
+    }
+
+    function uploadWithForm(file, onUploadProgress) {
+        const formData = new FormData()
+        formData.append('file', file)
+
+        return axios.post('/upload', formData, {
+            onUploadProgress: onUploadProgress
+        })
+    }
+
+    function uploadWithBody(file, onUploadProgress) {
+        return axios.post('/upload-single', file, {
+            headers: {
+                'content-type': file.type,
+                'x-file-name': file.name
+            },
+            onUploadProgress: onUploadProgress
+        })
+    }
+
+    // form / body
+    function getUploadMethod() {
+        return document.querySelector('input[name="method"]:checked').value
     }
 </script>
 </body>
