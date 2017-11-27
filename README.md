@@ -50,3 +50,8 @@ http://localhost:8080/
 
 - form: `/upload`
 - body: `/upload-single`
+
+### node client
+
+- `sendFile.js`: upload with body
+- `sendFileForm.js`: upload wiht form-data

@@ -34,6 +34,7 @@ app.post('/upload', upload.single('file'), (req, res, next) => {
 
  curl -X POST \
       -H "content-type: text/javascript" \
+      -H "x-file-name: sendFile.js" \
       --data-binary "@sendFile.js" \
       http://localhost:8080/upload-single
  */
