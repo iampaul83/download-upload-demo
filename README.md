@@ -6,6 +6,9 @@
 # install node dependency
 npm install
 
+# set DROPBOX_TOKEN
+export DROPBOX_TOKEN="dropbox oauth token"
+
 # run server
 node index.js
 ```
