@@ -37,6 +37,7 @@
         上傳方式：
         <input type="radio" name="method" value="form" id="method-form" checked> <label for="method-form">form</label>
         <input type="radio" name="method" value="body" id="method-body"> <label for="method-body">body</label>
+        <input type="checkbox" name="dropbox" value="body" id="method-dropbox"> <label for="method-dropbox">dropbox</label>
     </div>
     <p>
         把檔案拖拉至此以上傳
@@ -49,8 +50,42 @@
             <h2>drop to upload</h2>
         </div>
     </div>
+
+    <hr>
+
+    <h2>POST /upload</h2>
+    <form method="POST" enctype="multipart/form-data" action="/upload">
+        <input type="file" name="file">
+        <input type="text" name="text" value="123">
+        <input type="text" name="array[]" value="1">
+        <input type="text" name="array[]" value="2">
+        <input type="submit">
+    </form>
+
+    <hr>
+
+    <h2>download dropbox</h2>
+    <form method="POST" action="/dropbox">
+        <input type="text" name="path">
+        <input type="submit">
+    </form>
+
+    <hr>
+
+    <a href="/download">/download</a>
+    <br>
+    <a href="/download" download="filename.txt">/download</a> (with download="filename.txt")
+    
 <script src="https://unpkg.com/axios/dist/axios.min.js"></script>
 <script>
+    // var params = new URLSearchParams();
+    // params.append('prime', 'this is a prime');
+    // params.append('amount', 399);
+    // params.append('cardholder[phone_number]', '+886988888888');
+    // params.append('cardholder[name]', '蔡柏伍');
+    // params.append('cardholder[email]', 'paul.tsai@cherri.tech');
+
+
     const dragoverOverlay = document.getElementById('dragover-overlay')
     const uploadList = document.getElementById('upload-list')
 
@@ -124,8 +159,11 @@
     function uploadWithForm(file, onUploadProgress) {
         const formData = new FormData()
         formData.append('file', file)
-
-        return axios.post('/upload', formData, {
+        
+        const url = document.getElementById('method-dropbox').checked 
+            ? '/upload/dropbox'
+            : '/upload'
+        return axios.post(url, formData, {
             onUploadProgress: onUploadProgress
         })
     }

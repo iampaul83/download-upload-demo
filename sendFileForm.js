@@ -7,14 +7,13 @@ const mime = require('mime-types')
 const path = require('path')
 const filePath = 'index.js'
 
-const FormData = require('form-data');
-
+const FormData = require('form-data')
 const inputStream = fs.createReadStream(filePath)
 const form = new FormData()
 form.append('file', inputStream)
-
 axios.post('http://localhost:8080/upload', form, {
-  headers: form.getHeaders() // 'content-type': 'multipart/form-data; boundary=--------------------------xxxxxxxxxxxxxxx'
+  // 'content-type': 'multipart/form-data; boundary=--------------------------xxxxxxxxxxxxxxx'
+  headers: form.getHeaders()
 })
   .then((response) => {
     console.log('response', response.data)
